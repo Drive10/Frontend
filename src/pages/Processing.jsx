@@ -1,33 +1,22 @@
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getPaymentStatus } from "../services/paymentApi";
 
-import {useEffect} from "react"
-import {useNavigate} from "react-router-dom"
-import Spinner from "../components/Spinner"
+export default function Processing() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-export default function Processing(){
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const res = await getPaymentStatus(id);
 
- const nav=useNavigate()
+      if (res.data.status === "SUCCESS") {
+        navigate("/receipt");
+      }
+    }, 2000);
 
- useEffect(()=>{
+    return () => clearInterval(interval);
+  }, []);
 
-  const t=setTimeout(()=>{
-   nav("/receipt")
-  },3000)
-
-  return()=>clearTimeout(t)
-
- },[])
-
- return(
- <div className="flex justify-center items-center min-h-screen">
-
-  <div className="bg-white p-6 rounded text-center">
-
-   <h2 className="mb-4 font-semibold">Processing Payment</h2>
-
-   <Spinner/>
-
-  </div>
-
- </div>
- )
+  return <h2>Processing Payment...</h2>;
 }
