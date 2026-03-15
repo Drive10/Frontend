@@ -1,16 +1,27 @@
 
 import {useState} from "react"
 import {useNavigate} from "react-router-dom"
-import CardForm from "../components/CardForm"
+import {formatCard,luhnCheck} from "../utils/card"
 import UpiQR from "../components/UpiQR"
 
 export default function Checkout(){
 
- const [method,setMethod]=useState("card")
  const nav=useNavigate()
 
- const pay=()=>{
-  nav("/3ds")
+ const [method,setMethod]=useState("card")
+ const [card,setCard]=useState("")
+
+ const payCard=()=>{
+
+  const clean=card.replace(/\s/g,"")
+
+  if(!luhnCheck(clean)){
+   alert("Invalid card")
+   return
+  }
+
+  nav("/processing")
+
  }
 
  return(
@@ -27,22 +38,36 @@ export default function Checkout(){
    <div className="flex gap-2">
 
     <button
-     onClick={()=>setMethod("card")}
-     className={"flex-1 p-2 border rounded "+(method==="card"?"bg-blue-600 text-white":"")}>
+     className={"flex-1 p-2 border rounded "+(method==="card"?"bg-blue-600 text-white":"")}
+     onClick={()=>setMethod("card")}>
      Card
     </button>
 
     <button
-     onClick={()=>setMethod("upi")}
-     className={"flex-1 p-2 border rounded "+(method==="upi"?"bg-blue-600 text-white":"")}>
+     className={"flex-1 p-2 border rounded "+(method==="upi"?"bg-blue-600 text-white":"")}
+     onClick={()=>setMethod("upi")}>
      UPI
     </button>
 
    </div>
 
-   {method==="card" && <CardForm onSubmit={pay}/>}
+   {method==="card" && (
+    <div className="space-y-3">
+     <input
+      className="w-full p-2 border rounded"
+      placeholder="Card Number"
+      value={card}
+      onChange={e=>setCard(formatCard(e.target.value))}
+     />
+     <button
+      className="w-full bg-blue-600 text-white p-2 rounded"
+      onClick={payCard}>
+      Pay
+     </button>
+    </div>
+   )}
 
-   {method==="upi" &&
+   {method==="upi" && (
     <div className="space-y-4">
      <UpiQR upi="demo@upi" amount="499"/>
      <button
@@ -51,7 +76,7 @@ export default function Checkout(){
       I Paid
      </button>
     </div>
-   }
+   )}
 
   </div>
 

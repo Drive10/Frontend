@@ -7,13 +7,8 @@ export default function UpiQR({upi,amount}){
 
  return(
   <div className="text-center space-y-4">
-
    <QRCodeCanvas value={value} size={200}/>
-
-   <p className="text-sm">
-    Scan with any UPI app
-   </p>
-
+   <p className="text-sm">Scan using any UPI app</p>
   </div>
  )
 }

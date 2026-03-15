@@ -22,9 +22,7 @@ export default function Processing(){
 
   <div className="bg-white p-6 rounded text-center">
 
-   <h2 className="mb-4 font-semibold">
-    Processing Payment
-   </h2>
+   <h2 className="mb-4 font-semibold">Processing Payment</h2>
 
    <Spinner/>
 

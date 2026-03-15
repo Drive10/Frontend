@@ -14,12 +14,6 @@ export default function Receipt(){
    <p>Order ID: ORD123</p>
    <p>Amount: ₹499</p>
 
-   <hr/>
-
-   <p className="text-sm text-gray-500">
-    Receipt generated successfully.
-   </p>
-
   </div>
 
  </div>
