@@ -67,6 +67,7 @@ export default function Receipt() {
         <div className="mt-8 space-y-4 text-sm text-slate-600">
           {[
             ["Transaction ID", receipt.id],
+            ["Order Ref", receipt.orderReference],
             ["Amount", receipt.amountLabel],
             ["Method", receipt.methodLabel],
             ["Customer", receipt.customerLabel],

@@ -21,7 +21,7 @@ export default function Success() {
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-500">
           Your transaction was completed successfully
-          {transaction ? ` for ${transaction.amountLabel}.` : "."}
+          {transaction ? ` for ${transaction.amountLabel}. Order ${transaction.orderReference} is now paid.` : "."}
         </p>
 
         <Link

@@ -4,10 +4,9 @@ import { useNavigate } from "react-router-dom";
 import CardForm from "../components/CardForm";
 import UPIQR from "../components/UPIQR";
 import {
-  buildTransaction,
   PAYMENT_AMOUNT,
   PAYMENT_NOTE,
-  STORAGE_KEY,
+  startCheckout,
   validateCardForm,
 } from "../lib/payment";
 
@@ -22,6 +21,8 @@ export default function Checkout() {
   const [method, setMethod] = useState("card");
   const [values, setValues] = useState(initialForm);
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (field, value) => {
@@ -29,7 +30,7 @@ export default function Checkout() {
     setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
-  const pay = () => {
+  const pay = async () => {
     if (method === "card") {
       const nextErrors = validateCardForm(values);
       if (Object.keys(nextErrors).length > 0) {
@@ -38,22 +39,29 @@ export default function Checkout() {
       }
     }
 
-    const transaction = buildTransaction({
-      amount: PAYMENT_AMOUNT,
-      method,
-      cardholder: values.cardholder,
-    });
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(transaction));
-    navigate("/processing", { state: { transaction } });
+    try {
+      setSubmitting(true);
+      setSubmitError("");
+      const checkout = await startCheckout({
+        amount: PAYMENT_AMOUNT,
+        method,
+        cardholder: values.cardholder,
+      });
+      navigate("/processing", { state: { checkout } });
+    } catch (error) {
+      setSubmitError(error.message || "Unable to start payment.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const disabled =
-    method === "card" &&
+    submitting ||
+    (method === "card" &&
     (!values.cardNumber ||
       !values.expiry ||
       !values.cvv ||
-      !values.cardholder.trim());
+      !values.cardholder.trim()));
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6">
@@ -158,13 +166,19 @@ export default function Checkout() {
             Demo note: {PAYMENT_NOTE}
           </div>
 
+          {submitError ? (
+            <div className="mt-4 rounded-3xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {submitError}
+            </div>
+          ) : null}
+
           <button
             type="button"
             onClick={pay}
             disabled={disabled}
             className="mt-6 w-full rounded-2xl bg-slate-950 px-5 py-4 text-base font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            Pay ₹{PAYMENT_AMOUNT}
+            {submitting ? "Connecting to backend..." : `Pay ₹${PAYMENT_AMOUNT}`}
           </button>
         </motion.section>
       </div>

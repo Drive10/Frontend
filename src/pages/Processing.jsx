@@ -1,25 +1,30 @@
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getStoredTransaction } from "../lib/payment";
+import { captureCheckout, getStoredTransaction } from "../lib/payment";
 
 export default function Processing() {
   const location = useLocation();
   const navigate = useNavigate();
-  const transaction = location.state?.transaction ?? getStoredTransaction();
+  const checkout = location.state?.checkout ?? getStoredTransaction();
 
   useEffect(() => {
-    if (!transaction) {
+    if (!checkout?.payment?.id) {
       navigate("/", { replace: true });
       return;
     }
 
-    const timer = window.setTimeout(() => {
-      navigate("/success", { replace: true, state: { transaction } });
+    const timer = window.setTimeout(async () => {
+      try {
+        const transaction = await captureCheckout(checkout);
+        navigate("/success", { replace: true, state: { transaction } });
+      } catch {
+        navigate("/", { replace: true });
+      }
     }, 1800);
 
     return () => window.clearTimeout(timer);
-  }, [navigate, transaction]);
+  }, [checkout, navigate]);
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
